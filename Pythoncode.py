@@ -1,5 +1,4 @@
-
-import requests  # To interact with the Dune API
+import requests  
 import pandas as pd  # handle and process data
 import matplotlib.pyplot as plt  # For plotting graphs
 import seaborn as sns  # for visualizations
@@ -11,11 +10,9 @@ def fetch_dune_data(api_key: str, query_id: str) -> pd.DataFrame:
     Fetch transaction data from the Dune Analytics API.
     
     Args:
-        api_key (str): Your Dune API key to authenticate requests. Most important got stuck here for 2 hours to find out how to do it.
+        api_key (str): Your Dune API key to authenticate requests.
         query_id (str): The query ID to execute on Dune.
 
-    
-    
     Workflow:
     1. Send a request to Dune to execute a query.
     2. Wait for Dune to process and complete the query.
@@ -30,7 +27,7 @@ def fetch_dune_data(api_key: str, query_id: str) -> pd.DataFrame:
         execute_endpoint = f"{base_url}query/{query_id}/execute"
         execution_response = requests.post(execute_endpoint, headers=headers)
         
-        # Checking th execution request 
+        # Checking the execution request 
         if execution_response.status_code != 200:
             raise Exception(f"Query execution failed: {execution_response.text}")
             
@@ -72,7 +69,6 @@ def fetch_dune_data(api_key: str, query_id: str) -> pd.DataFrame:
         print(f"Error: {str(e)}")
         raise
 
-
 # Replace QUERY_ID and API_KEY with your actual values from Dune.
 QUERY_ID = "4493349"
 API_KEY = "vTIUROGky07AVY5gWXB18vo7j5uiQBT9"
@@ -91,7 +87,7 @@ df = pd.read_csv("dune_transactions.csv")
 
 # Ensure necessary columns are present
 df['value'] = pd.to_numeric(df['value'], errors='coerce')  
-df.dropna(subset=['from', 'to', 'value'], inplace=True)  # Removing unwanted colums without data
+df.dropna(subset=['from', 'to', 'value', 'contract_address'], inplace=True)  # Removing unwanted columns without data
 
 # Step 3: User Activity Analysis
 def analyze_user_activity(df: pd.DataFrame) -> pd.DataFrame:
@@ -113,10 +109,9 @@ def analyze_user_activity(df: pd.DataFrame) -> pd.DataFrame:
     # Minimum transaction amount for each user
     min_transaction = df.groupby('from')['value'].min().reset_index(name='min_transaction')
 
-    # Count of unique tokens traded by each user (based on 'to' address)
-    unique_tokens = df.groupby('from')['to'].nunique().reset_index(name='unique_tokens') #here i am assuming the "to" address to be token address as every uniwue token address will be a unique token
+    # Count of unique tokens traded by each user (based on 'contract_address') contract address is token address
+    unique_tokens = df.groupby('from')['contract_address'].nunique().reset_index(name='unique_tokens')
 
-    
     user_stats = user_activity.merge(max_transaction, on='from')\
                               .merge(min_transaction, on='from')\
                               .merge(unique_tokens, on='from')
@@ -165,9 +160,9 @@ def create_visualizations(user_stats: pd.DataFrame, correlation_matrix: pd.DataF
     plt.ylabel('Frequency')
     plt.show()
 
- #visualizations to make the data more insightful
+# Visualizations to make the data more insightful
 create_visualizations(user_stats, correlation_matrix)
 
-
+# Save the user statistics
 user_stats.to_csv('user_statistics.csv', index=False)
 print("\nUser statistics saved to 'user_statistics.csv'")
