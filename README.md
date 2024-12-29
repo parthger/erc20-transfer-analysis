@@ -18,5 +18,3 @@ The dataset is sourced from the `erc20_ethereum.evt_transfer` table, which inclu
    - Calculates the number of unique senders, unique receivers, and total unique users for each hour of the day.
    - Query file: `queries/active_users_per_hour.sql`
 
-### Usage
-To execute the queries, use any SQL client compatible with the database containing the `erc20_ethereum.evt_transfer` table. Ensure the dataset is properly indexed for optimal performance.
